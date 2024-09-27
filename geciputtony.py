@@ -1,5 +1,5 @@
-#Fejlesztette: Geleta Ákos
-#Keltezés: Békásmegyer, 2024. szeptember 15.
+#Fejlesztette: ------ ----
+#Keltezés: -----------, 2024. szeptember 15.
 
 import platform
 import psutil
