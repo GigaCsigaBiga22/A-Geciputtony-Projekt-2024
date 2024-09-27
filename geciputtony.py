@@ -1,3 +1,6 @@
+#Fejlesztette: Geleta Ákos
+#Keltezés: Békásmegyer, 2024. szeptember 15.
+
 import platform
 import psutil
 import GPUtil
@@ -6,7 +9,6 @@ import math
 from pySMART import Device
 from pySMART import DeviceList
 from pySMART import Attribute
-from pySMART import SMARTCTL
 import wmi
 import win32api
 import win32com
@@ -14,18 +16,37 @@ import win32com.client
 import tkinter as tk
 import os
 import subprocess
+import winreg
 
-SMARTCTL.sudo = True
 w = wmi.WMI()
 
 #Figyelmeztetés
-print("="*22, "Figyelmeztetés! A program csakis kizárólag Windows rendszereken működik.", "="*23, "\n\n")
+print("="*22, "Figyelmeztetés! A program csakis kizárólag Windows rendszereken működik.", "="*23, "\n", " "*21, "(Windows 8.1, Windows 10 és Windows 11, hogy egész pontos legyek.)\n\n")
 
 # Rendszerinformáció begyűjtése
-system_info = platform.uname()
+rendszerinfo = platform.uname()
+try:
+    kimenet = subprocess.check_output("wmic os get Caption", shell=True)
+    verzio = kimenet.decode().strip().split("\n")[1].strip()
+except Exception as e:
+    pass
 print("="*5, "Rendszerinfó:", "="*5)
-print(f"--> Operációs rendszer: {system_info.system} {system_info.release} - {system_info.version}")
-print(f"--> Gép neve: {system_info.node}\n")
+for szo in verzio.split(' '):
+    if szo.isdigit():
+        winVerzioszam = szo
+
+segedValtozo1 = rendszerinfo.version.split('.')
+
+print(f"--> Operációs rendszer: {rendszerinfo.system} {winVerzioszam} {platform.win32_edition()} - {segedValtozo1[0]}.{segedValtozo1[1]} (Build verzió: {segedValtozo1[2]})")
+print(f"--> Gép neve: {rendszerinfo.node}\n")
+
+#Alaplapinformációk begyűjtése
+print("="*5, "Alaplapinformációk:", "="*5)
+
+for alaplap in w.Win32_BaseBoard():
+    print(f"Alaplap gyártója: {alaplap.Manufacturer}")
+    print(f"Alaplap modellje: {alaplap.Product}")
+    print(f"Alaplap sorozatszáma: {alaplap.SerialNumber}\n")
 
 # Processzorinformációk begyűjtése
 cpu_info = cpuinfo.get_cpu_info()
@@ -135,7 +156,10 @@ try:
         else:
             print(f"--> Háttértár mérete: {round((eppenVizsgaltHattertar.size) / math.pow(1024, 4))} TB")
         if eppenVizsgaltHattertar.rotation_rate is None:
-            print(f"--> Háttértár típusa: {eppenVizsgaltHattertar._interface} csatlakozojú SSD\n")
+            if "nvme" in eppenVizsgaltHattertar.interface:
+                print(f"--> Háttértár típusa: NVMe csatlakozójú SSD\n")
+            else:    
+                print(f"--> Háttértár típusa: {eppenVizsgaltHattertar._interface} csatlakozojú SSD\n")
         elif eppenVizsgaltHattertar.rotation_rate > 0:
             print(f"--> Háttértár típusa: {eppenVizsgaltHattertar._interface} csatlakozójú HDD vagy SSHD\n")
         else:
@@ -146,8 +170,4 @@ except Exception as hibaLeirasHATTERTAR:
 
 # Kijelzővel kapcsolatos információk begyüjtése: #ez egy rakat szar, 4db Tkinter ablakot nyit fel, amikón nekem 1 se kéne xd (tudommér, csak szopás, na)
 print("="*5, "Kijelzővel kapcsolatos információk:", "="*5)
-
-
-# Get keyboard and mouse information
-
-#input("Nyomj Enter-t a kilépéshez...")
+print("--> Majd ha egyszer sikerül megszülnöm; itt is lesz valami.")
