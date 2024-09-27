@@ -133,7 +133,12 @@ gpus = GPUtil.getGPUs()
 if gpus:
     print("="*5, "Videóvezérlővel kapcsolatos információk", "="*5)
     for gpu in gpus:
-        print(f"--> Megnevezés: {gpu.name}")
+        print(f"--> {gpu.name}")
+        if "N/A" in gpu.serial:
+            print(f"--> Videóvezérlő sorozatszáma: Nem sikerült kideríteni.")
+        else: 
+            print(f"--> Videóvezérlő sorozatszáma: {gpu.serial}")
+        print(f"--> Videóvezérlő Globális Egyedi Azonosítója: {gpu.uuid}")
         print(f"--> Összes található videómemóra: {round(gpu.memoryTotal)} MB\n")
 else:
     print("----> Megjegyzés: Nem található videóvezérlő.\n")
